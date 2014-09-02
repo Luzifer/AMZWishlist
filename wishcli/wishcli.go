@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/Luzifer/AMZWishlist"
 	"github.com/crackcomm/go-clitable"
@@ -26,7 +27,7 @@ func main() {
 
 func truncate(s string) string {
 	if len(s) > 75 {
-		return fmt.Sprintf("%s...", s[:75])
+		return fmt.Sprintf("%s...", strings.TrimSpace(s[:75]))
 	}
 	return s
 }
