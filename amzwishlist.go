@@ -5,12 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 
 	"github.com/bjarneh/latinx"
-	"github.com/crackcomm/go-clitable"
 	"gopkg.in/xmlpath.v2"
 
 	"code.google.com/p/go.net/html"
@@ -19,29 +17,6 @@ import (
 type Wish struct {
 	Title, Price        string
 	Requested, Received int
-}
-
-func main() {
-	wishlist := os.Args[1]
-	elements := ScrapeWishlist(wishlist)
-
-	table := clitable.New([]string{"Title", "Price", "Requested", "Received"})
-	for _, wish := range elements {
-		row := make(map[string]interface{})
-		row["Title"] = truncate(wish.Title)
-		row["Price"] = wish.Price
-		row["Requested"] = wish.Requested
-		row["Received"] = wish.Received
-		table.AddRow(row)
-	}
-	table.Print()
-}
-
-func truncate(s string) string {
-	if len(s) > 75 {
-		return fmt.Sprintf("%s...", s[:75])
-	}
-	return s
 }
 
 func ScrapeWishlist(wishlist string) []Wish {
