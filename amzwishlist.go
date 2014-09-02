@@ -1,3 +1,5 @@
+// Package amzwishlist provides a simple library to scrape contents
+//from an Amazon wishlist for further processing
 package amzwishlist
 
 import (
@@ -14,11 +16,17 @@ import (
 	"code.google.com/p/go.net/html"
 )
 
+// Wish represents a single wish in an Amazon wishlist
 type Wish struct {
 	Title, Price        string
 	Requested, Received int
 }
 
+/*
+ScrapeWishlist takes the wishlist ID (like "A9MBI81ZSO7Q") as
+an argument and scrapes the wishlist items from the compact view of the
+wishlists website.
+*/
 func ScrapeWishlist(wishlist string) []Wish {
 	url := fmt.Sprintf("http://www.amazon.de/registry/wishlist/%s/?reveal=unpurchased&filter=all&sort=date-added&layout=compact", wishlist)
 	resp, err := http.Get(url)
@@ -27,9 +35,9 @@ func ScrapeWishlist(wishlist string) []Wish {
 	}
 	defer resp.Body.Close()
 
-	body, read_err := ioutil.ReadAll(resp.Body)
-	if read_err != nil {
-		panic(read_err)
+	body, readErr := ioutil.ReadAll(resp.Body)
+	if readErr != nil {
+		panic(readErr)
 	}
 
 	good, converr := latinx.Decode(latinx.ISO_8859_15, body)
@@ -37,7 +45,7 @@ func ScrapeWishlist(wishlist string) []Wish {
 		panic(converr)
 	}
 
-	reader := strings.NewReader(sanitizeHtml(string(good)))
+	reader := strings.NewReader(sanitizeHTML(string(good)))
 	xmlroot, xmlerr := xmlpath.ParseHTML(reader)
 	if xmlerr != nil {
 		panic(xmlerr)
@@ -65,9 +73,8 @@ func getXpathString(xpath string, node *xmlpath.Node) string {
 	path := xmlpath.MustCompile(xpath)
 	if res, ok := path.String(node); ok {
 		return strings.Trim(res, " \n")
-	} else {
-		panic(fmt.Sprintf("No string found for %s", xpath))
 	}
+	panic(fmt.Sprintf("No string found for %s", xpath))
 }
 
 func getXpathInt(xpath string, node *xmlpath.Node) int {
@@ -79,7 +86,7 @@ func getXpathInt(xpath string, node *xmlpath.Node) int {
 	return i
 }
 
-func sanitizeHtml(rawHTML string) string {
+func sanitizeHTML(rawHTML string) string {
 	reader := strings.NewReader(rawHTML)
 	root, err := html.Parse(reader)
 	if err != nil {
@@ -88,7 +95,7 @@ func sanitizeHtml(rawHTML string) string {
 
 	var b bytes.Buffer
 	html.Render(&b, root)
-	fixedHtml := b.String()
+	fixedHTML := b.String()
 
-	return fixedHtml
+	return fixedHTML
 }
