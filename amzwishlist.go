@@ -72,7 +72,8 @@ func ScrapeWishlist(wishlist string) []Wish {
 func getXpathString(xpath string, node *xmlpath.Node) string {
 	path := xmlpath.MustCompile(xpath)
 	if res, ok := path.String(node); ok {
-		return strings.Trim(res, " \n")
+		res = strings.Replace(res, "\u200b", "", -1) // WTF? Damn non-printable chars
+		return strings.TrimSpace(res)
 	}
 	panic(fmt.Sprintf("No string found for %s", xpath))
 }
